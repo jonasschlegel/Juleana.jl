@@ -147,22 +147,15 @@ function process_peak_split(processing_config::PropDict, l200::LegendData, perio
     end
 
 
-    # split peaks from raw waveforms
-    function to_rdwaveform_vec(data)
-        data isa AbstractVector{<:LegendDataTypes.RDWaveform} && return data
-        tbl = Tables.istable(data) ? data : data[:]
-        decoded = LegendHDF5IO.from_table(tbl, AbstractVector{<:LegendDataTypes.RDWaveform})
-        return decode_data(decoded)
-    end
-
+    # decode data 
     function normalize_waveform_columns(tbl)
         cols = Tables.columns(tbl)
         replacements = NamedTuple()
         if hasproperty(cols, :waveform_presummed)
-            replacements = merge(replacements, (waveform_presummed = to_rdwaveform_vec(cols.waveform_presummed),))
+            replacements = merge(replacements, (waveform_presummed = decode_data(cols.waveform_presummed),))
         end
         if hasproperty(cols, :waveform_windowed)
-            replacements = merge(replacements, (waveform_windowed = to_rdwaveform_vec(cols.waveform_windowed),))
+            replacements = merge(replacements, (waveform_windowed = decode_data(cols.waveform_windowed),))
         end
         isempty(keys(replacements)) && return tbl
         return Tables.materializer(tbl)((; cols..., replacements...))

@@ -68,13 +68,6 @@ function p_process_aoe_optimization(processing_config::PropDict, l200::LegendDat
         end
     end
 
-    function to_rdwaveform_vec(data)
-        data isa AbstractVector{<:LegendDataTypes.RDWaveform} && return data
-        tbl = Tables.istable(data) ? data : data[:]
-        converted = LegendHDF5IO.from_table(tbl, AbstractVector{<:LegendDataTypes.RDWaveform})
-        return decode_data(converted)
-    end
-
     function ch_sg_optimization(chinfo_ch::NamedTuple)
         
         ch  = chinfo_ch.channel
@@ -186,8 +179,8 @@ function p_process_aoe_optimization(processing_config::PropDict, l200::LegendDat
                     
                     # Load DEP data
                     dep_grp = ds[data_key, :jlpeaks, :Tl208DEP_Bi212FEP]
-                    wdw_dep = to_rdwaveform_vec(dep_grp.waveform_windowed[:])
-                    pre_dep = to_rdwaveform_vec(dep_grp.waveform_presummed[:])
+                    wdw_dep = decode_data(dep_grp.waveform_windowed[:])
+                    pre_dep = decode_data(dep_grp.waveform_presummed[:])
                     
                     # Select n_evts if specified
                     if n_evts > 0 && length(pre_dep) > n_evts
@@ -200,8 +193,8 @@ function p_process_aoe_optimization(processing_config::PropDict, l200::LegendDat
                     
                     # Load SEP data
                     sep_grp = ds[data_key, :jlpeaks, :Tl208SEP]
-                    wdw_sep = to_rdwaveform_vec(sep_grp.waveform_windowed[:])
-                    pre_sep = to_rdwaveform_vec(sep_grp.waveform_presummed[:])
+                    wdw_sep = decode_data(sep_grp.waveform_windowed[:])
+                    pre_sep = decode_data(sep_grp.waveform_presummed[:])
                     
                     # Select n_evts if specified
                     if n_evts > 0 && length(pre_sep) > n_evts
