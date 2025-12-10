@@ -195,10 +195,8 @@ function p_process_sipm_optimization_phy(processing_config::PropDict, l200::Lege
             non_pulser_idx = findall(.!is_pulser)
             wvfs_col = hasproperty(data_ch, :waveform_bit_drop) ? :waveform_bit_drop : :waveform
             waveform_data = getproperty(data_ch[non_pulser_idx], wvfs_col)[:]
-
-            # Convert stored tables into RDWaveform vectors understood by DSP code
-            wvfs_ch = LegendHDF5IO.from_table(waveform_data, AbstractVector{<:LegendDataTypes.RDWaveform})
-            wvfs_ch = decode_data(wvfs_ch)
+            # Decode waveforms
+            wvfs_ch = decode_data(waveform_data)
         catch e
             @error "Error in Pulser tag for channel $ch: $(truncate_error(e))"
             throw(ErrorException("Error in Pulser tag for channel: $(truncate_error(e))"))
